@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+<title>智慧体育 AI 诊断实验室</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 20px; background-color: #f8f9fa; }
+        .container { max-width: 1000px; margin: auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        h2, h3 {
+	color: #108647;
+	text-align: center;
+	font-size: 36px;
+}
+          .section { border: 1px solid #e0e0e0; padding: 20px; border-radius: 12px; margin-bottom: 25px; background: #fafafa; }
+        .btn { display: inline-block; padding: 12px 24px; background: #1a73e8; color: white; text-decoration: none; border-radius: 8px; cursor: pointer; border: none; font-size: 16px; }
+        .btn:hover { background: #1557b0; }
+
+        .form-container { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 20px; }
+        .form-group { flex: 1 1 30%; display: flex; flex-direction: column; }
+        label { font-weight: bold; margin-bottom: 5px; color: #555; }
+        input, select { padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; }
+        button { width: 100%; padding: 12px; background-color: #0d6efd; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; font-weight: bold; margin-top: 10px; transition: 0.3s; }
+        button:hover { background-color: #0b5ed7; }
+        .result { margin-top: 20px; padding: 20px; background-color: #d1e7dd; border-radius: 5px; font-size: 16px; color: #0f5132; text-align: center; display: none; border: 1px solid #badbcc; line-height: 1.6;}
+        .table-wrapper { overflow-x: auto; margin-top: 30px; max-height: 500px; }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: center; }
+        th, td { border: 1px solid #dee2e6; padding: 10px; }
+        th { background-color: #f1f3f5; color: #495057; position: sticky; top: 0; }
+        tr:nth-child(even) { background-color: #f8f9fa; }
+        tr:hover { background-color: #e9ecef; }
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; color: white; font-weight: bold; }
+        .type-速度型 { background-color: #dc3545; }
+        .type-耐力型 { background-color: #198754; }
+        .type-力量型 { background-color: #fd7e14; }
+        .type-综合型 { background-color: #0d6efd; }
+    </style>
+</head>
+<body>
+	<div id="tt" style="position: absolute;"><img src="jxw.png" width="121" height="143" alt=""/></div>
+<script>
+function moveDiv() {
+    var tt = document.getElementById('tt');
+    var x = Math.floor(Math.random() * (window.innerWidth - tt.offsetWidth));
+    var y = Math.floor(Math.random() * (window.innerHeight - tt.offsetHeight));
+    tt.style.left = x + 'px';
+    tt.style.top = y + 'px';
+}
+setInterval(moveDiv, 1000);
+</script>
+
+    <div class="container">
+        <h2><img src="校徽1.png" width="60" height="45" alt=""/>学号姓名设计的智慧体育 AI 诊断实验室<img src="校徽1.png" width="60" height="45" alt=""/></h2>
+
+    <div class="section">
+        <h3>1. 全校体质动态大盘 (FineBI)</h3>
+        <p style="text-align: center;">基于问卷星采集的班级数据，通过 FineBI 展示全局分析。</p>
+
+
+         <h3><a href="https://demo.fanruan.com/webroot/decision/v5/design/report/5b0d452ba44a4cfdae543c38612ac6ce/view" target="_blank" class="btn">进入可视化看板</a></h3>
+
+
+
+    </div>
+ <div class="section">
+        <h3>2. 个人体能 AI 智能诊断 (KNN 算法)</h3>
+        <p>输入你的成绩，AI 将对比 160 名标准样本为您分型：</p>
+  <div class="form-container" id="input-form">
+          <div class="form-group"><label>性别:</label> <select id="gender"><option value="1">男</option><option value="0">女</option></select></div>
+            <div class="form-group"><label>肺活量 (ml):</label> <input type="number" id="fvc" value="3500"></div>
+            <div class="form-group"><label>50米跑 (s):</label> <input type="number" step="0.1" id="speed" value="7.5"></div>
+            <div class="form-group"><label>立定跳远 (cm):</label> <input type="number" id="jump" value="230"></div>
+            <div class="form-group"><label>耐力跑 (秒):</label> <input type="number" id="endurance" value="240" placeholder="例如4分跑填240"></div>
+            <div class="form-group"><label>力量项目个数:</label> <input type="number" id="strength" value="25"></div>
+            <div class="form-group"><label>K值选择 (取前K个近邻):</label> <input type="number" id="kValue" value="5" min="1" max="15" step="2"></div>
+      </div>
+        <button onclick="predictKNN()">🚀 开始 KNN 预测分析</button>
+        
+        <div class="result" id="result-box"></div>
+
+        <hr style="margin: 40px 0; border: 1px solid #eee;">
+        
+      <h3>📋 160条核心数据溯源表 </h3>
+        <p style="text-align: center; color: #666; font-size: 13px;">说明: KNN 算法严格且只在这固定的 160 条记录中进行动态的最值归一化及欧氏距离投票。</p>
+        <div class="table-wrapper">
+            <table id="data-table">
+                <thead>
+                    <tr>
+                        <th>序号</th><th>性别</th><th>肺活量(ml)</th><th>50米跑(s)</th><th>立定跳远(cm)</th><th>耐力跑(秒)</th><th>力量个数</th><th>体测结论类型</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                </tbody>
+            </table>
+        </div>
+
+
+
+
+    <script>
+        // ==========================================================
+        // 原则 1:1 硬编码 - 由 Python 转录的精确 160 条原始数据
+        // 注：原始数据没有类别，类型已经由底层算法通过 Z-score 标准分自动打标完成
+        // ==========================================================
+        const trainingData = [
+    {id: 1, gender: '男', gender_val: 1, fvc: 4800.0, speed: 7.2, jump: 265.0, endurance: 225, strength: 18.0, label: '耐力型'},
+    {id: 2, gender: '女', gender_val: 0, fvc: 3200.0, speed: 8.5, jump: 208.0, endurance: 272, strength: 45.0, label: '力量型'},
+    {id: 3, gender: '男', gender_val: 1, fvc: 4500.0, speed: 7.5, jump: 252.0, endurance: 238, strength: 15.0, label: '综合型'},
+    {id: 4, gender: '女', gender_val: 0, fvc: 2900.0, speed: 8.8, jump: 195.0, endurance: 285, strength: 42.0, label: '综合型'},
+    {id: 5, gender: '男', gender_val: 1, fvc: 5100.0, speed: 7.0, jump: 278.0, endurance: 218, strength: 20.0, label: '力量型'},
+    {id: 6, gender: '女', gender_val: 0, fvc: 3050.0, speed: 8.6, jump: 202.0, endurance: 278, strength: 40.0, label: '综合型'},
+    {id: 7, gender: '男', gender_val: 1, fvc: 4300.0, speed: 7.7, jump: 245.0, endurance: 245, strength: 14.0, label: '力量型'},
+    {id: 8, gender: '女', gender_val: 0, fvc: 3300.0, speed: 8.4, jump: 215.0, endurance: 265, strength: 48.0, label: '力量型'},
+    {id: 9, gender: '男', gender_val: 1, fvc: 4700.0, speed: 7.3, jump: 260.0, endurance: 232, strength: 17.0, label: '综合型'},
+    {id: 10, gender: '女', gender_val: 0, fvc: 2800.0, speed: 9.0, jump: 190.0, endurance: 290, strength: 38.0, label: '力量型'},
+    {id: 11, gender: '男', gender_val: 1, fvc: 4400.0, speed: 7.6, jump: 248.0, endurance: 242, strength: 16.0, label: '综合型'},
+    {id: 12, gender: '女', gender_val: 0, fvc: 3100.0, speed: 8.7, jump: 200.0, endurance: 280, strength: 43.0, label: '综合型'},
+    {id: 13, gender: '男', gender_val: 1, fvc: 4900.0, speed: 7.1, jump: 272.0, endurance: 222, strength: 19.0, label: '力量型'},
+    {id: 14, gender: '女', gender_val: 0, fvc: 2950.0, speed: 8.9, jump: 198.0, endurance: 282, strength: 39.0, label: '综合型'},
+    {id: 15, gender: '男', gender_val: 1, fvc: 4600.0, speed: 7.4, jump: 255.0, endurance: 235, strength: 15.0, label: '综合型'},
+    {id: 16, gender: '女', gender_val: 0, fvc: 3250.0, speed: 8.3, jump: 210.0, endurance: 270, strength: 46.0, label: '力量型'},
+    {id: 17, gender: '男', gender_val: 1, fvc: 4200.0, speed: 7.8, jump: 242.0, endurance: 248, strength: 13.0, label: '耐力型'},
+    {id: 18, gender: '女', gender_val: 0, fvc: 3000.0, speed: 8.6, jump: 196.0, endurance: 275, strength: 41.0, label: '综合型'},
+    {id: 19, gender: '男', gender_val: 1, fvc: 4750.0, speed: 7.3, jump: 258.0, endurance: 230, strength: 17.0, label: '综合型'},
+    {id: 20, gender: '女', gender_val: 0, fvc: 2750.0, speed: 9.1, jump: 188.0, endurance: 292, strength: 37.0, label: '力量型'},
+    {id: 21, gender: '男', gender_val: 1, fvc: 4350.0, speed: 7.5, jump: 250.0, endurance: 240, strength: 14.0, label: '综合型'},
+    {id: 22, gender: '女', gender_val: 0, fvc: 3150.0, speed: 8.5, jump: 205.0, endurance: 276, strength: 44.0, label: '力量型'},
+    {id: 23, gender: '男', gender_val: 1, fvc: 4850.0, speed: 7.2, jump: 268.0, endurance: 228, strength: 18.0, label: '力量型'},
+    {id: 24, gender: '女', gender_val: 0, fvc: 2700.0, speed: 9.2, jump: 185.0, endurance: 295, strength: 36.0, label: '力量型'},
+    {id: 25, gender: '男', gender_val: 1, fvc: 4100.0, speed: 7.9, jump: 240.0, endurance: 250, strength: 12.0, label: '耐力型'},
+    {id: 26, gender: '女', gender_val: 0, fvc: 2900.0, speed: 8.8, jump: 192.0, endurance: 288, strength: 39.0, label: '综合型'},
+    {id: 27, gender: '男', gender_val: 1, fvc: 4650.0, speed: 7.4, jump: 256.0, endurance: 233, strength: 16.0, label: '综合型'},
+    {id: 28, gender: '女', gender_val: 0, fvc: 3350.0, speed: 8.2, jump: 212.0, endurance: 268, strength: 47.0, label: '速度型'},
+    {id: 29, gender: '男', gender_val: 1, fvc: 5000.0, speed: 7.0, jump: 275.0, endurance: 215, strength: 20.0, label: '耐力型'},
+    {id: 30, gender: '女', gender_val: 0, fvc: 2850.0, speed: 8.7, jump: 194.0, endurance: 283, strength: 40.0, label: '综合型'},
+    {id: 31, gender: '男', gender_val: 1, fvc: 4250.0, speed: 7.7, jump: 246.0, endurance: 246, strength: 13.0, label: '耐力型'},
+    {id: 32, gender: '女', gender_val: 0, fvc: 2800.0, speed: 8.9, jump: 189.0, endurance: 286, strength: 37.0, label: '综合型'},
+    {id: 33, gender: '男', gender_val: 1, fvc: 4700.0, speed: 7.3, jump: 262.0, endurance: 229, strength: 17.0, label: '综合型'},
+    {id: 34, gender: '女', gender_val: 0, fvc: 2750.0, speed: 9.0, jump: 186.0, endurance: 293, strength: 35.0, label: '速度型'},
+    {id: 35, gender: '男', gender_val: 1, fvc: 4300.0, speed: 7.6, jump: 244.0, endurance: 243, strength: 15.0, label: '综合型'},
+    {id: 36, gender: '女', gender_val: 0, fvc: 3000.0, speed: 8.6, jump: 199.0, endurance: 279, strength: 42.0, label: '综合型'},
+    {id: 37, gender: '男', gender_val: 1, fvc: 4550.0, speed: 7.2, jump: 259.0, endurance: 231, strength: 18.0, label: '力量型'},
+    {id: 38, gender: '女', gender_val: 0, fvc: 3100.0, speed: 8.4, jump: 203.0, endurance: 273, strength: 44.0, label: '速度型'},
+    {id: 39, gender: '男', gender_val: 1, fvc: 5150.0, speed: 6.9, jump: 280.0, endurance: 212, strength: 21.0, label: '力量型'},
+    {id: 40, gender: '女', gender_val: 0, fvc: 2950.0, speed: 8.8, jump: 197.0, endurance: 281, strength: 41.0, label: '综合型'},
+    {id: 41, gender: '男', gender_val: 1, fvc: 4000.0, speed: 7.8, jump: 238.0, endurance: 252, strength: 12.0, label: '速度型'},
+    {id: 42, gender: '女', gender_val: 0, fvc: 3050.0, speed: 8.7, jump: 201.0, endurance: 277, strength: 43.0, label: '综合型'},
+    {id: 43, gender: '男', gender_val: 1, fvc: 4350.0, speed: 7.5, jump: 249.0, endurance: 241, strength: 14.0, label: '综合型'},
+    {id: 44, gender: '女', gender_val: 0, fvc: 3200.0, speed: 8.3, jump: 208.0, endurance: 269, strength: 45.0, label: '速度型'},
+    {id: 45, gender: '男', gender_val: 1, fvc: 4600.0, speed: 7.4, jump: 254.0, endurance: 234, strength: 16.0, label: '综合型'},
+    {id: 46, gender: '女', gender_val: 0, fvc: 2850.0, speed: 8.9, jump: 191.0, endurance: 289, strength: 38.0, label: '综合型'},
+    {id: 47, gender: '男', gender_val: 1, fvc: 4150.0, speed: 7.7, jump: 241.0, endurance: 247, strength: 13.0, label: '速度型'},
+    {id: 48, gender: '女', gender_val: 0, fvc: 3150.0, speed: 8.5, jump: 204.0, endurance: 275, strength: 42.0, label: '综合型'},
+    {id: 49, gender: '男', gender_val: 1, fvc: 4800.0, speed: 7.1, jump: 266.0, endurance: 226, strength: 18.0, label: '速度型'},
+    {id: 50, gender: '女', gender_val: 0, fvc: 2700.0, speed: 9.1, jump: 184.0, endurance: 294, strength: 36.0, label: '力量型'},
+    {id: 51, gender: '男', gender_val: 1, fvc: 4450.0, speed: 7.6, jump: 251.0, endurance: 237, strength: 15.0, label: '综合型'},
+    {id: 52, gender: '女', gender_val: 0, fvc: 2900.0, speed: 8.8, jump: 193.0, endurance: 287, strength: 39.0, label: '综合型'},
+    {id: 53, gender: '男', gender_val: 1, fvc: 4900.0, speed: 7.0, jump: 270.0, endurance: 220, strength: 19.0, label: '速度型'},
+    {id: 54, gender: '女', gender_val: 0, fvc: 2800.0, speed: 8.7, jump: 189.0, endurance: 284, strength: 37.0, label: '综合型'},
+    {id: 55, gender: '男', gender_val: 1, fvc: 3950.0, speed: 7.9, jump: 236.0, endurance: 255, strength: 11.0, label: '速度型'},
+    {id: 56, gender: '女', gender_val: 0, fvc: 2850.0, speed: 8.9, jump: 188.0, endurance: 285, strength: 38.0, label: '综合型'},
+    {id: 57, gender: '男', gender_val: 1, fvc: 4650.0, speed: 7.3, jump: 257.0, endurance: 232, strength: 16.0, label: '综合型'},
+    {id: 58, gender: '女', gender_val: 0, fvc: 3300.0, speed: 8.2, jump: 211.0, endurance: 267, strength: 46.0, label: '速度型'},
+    {id: 59, gender: '男', gender_val: 1, fvc: 4200.0, speed: 7.7, jump: 245.0, endurance: 244, strength: 14.0, label: '力量型'},
+    {id: 60, gender: '女', gender_val: 0, fvc: 2750.0, speed: 9.0, jump: 186.0, endurance: 292, strength: 35.0, label: '耐力型'},
+    {id: 61, gender: '男', gender_val: 1, fvc: 4500.0, speed: 7.2, jump: 253.0, endurance: 230, strength: 17.0, label: '综合型'},
+    {id: 62, gender: '女', gender_val: 0, fvc: 3000.0, speed: 8.6, jump: 198.0, endurance: 278, strength: 41.0, label: '综合型'},
+    {id: 63, gender: '男', gender_val: 1, fvc: 4700.0, speed: 7.3, jump: 260.0, endurance: 227, strength: 18.0, label: '力量型'},
+    {id: 64, gender: '女', gender_val: 0, fvc: 2900.0, speed: 8.8, jump: 195.0, endurance: 280, strength: 40.0, label: '综合型'},
+    {id: 65, gender: '男', gender_val: 1, fvc: 4300.0, speed: 7.6, jump: 243.0, endurance: 245, strength: 15.0, label: '综合型'},
+    {id: 66, gender: '女', gender_val: 0, fvc: 3100.0, speed: 8.5, jump: 202.0, endurance: 274, strength: 43.0, label: '耐力型'},
+    {id: 67, gender: '男', gender_val: 1, fvc: 4950.0, speed: 6.9, jump: 273.0, endurance: 216, strength: 20.0, label: '速度型'},
+    {id: 68, gender: '女', gender_val: 0, fvc: 2950.0, speed: 8.7, jump: 194.0, endurance: 286, strength: 39.0, label: '综合型'},
+    {id: 69, gender: '男', gender_val: 1, fvc: 4350.0, speed: 7.5, jump: 247.0, endurance: 240, strength: 14.0, label: '综合型'},
+    {id: 70, gender: '女', gender_val: 0, fvc: 3200.0, speed: 8.4, jump: 206.0, endurance: 271, strength: 44.0, label: '耐力型'},
+    {id: 71, gender: '男', gender_val: 1, fvc: 4600.0, speed: 7.4, jump: 252.0, endurance: 236, strength: 16.0, label: '综合型'},
+    {id: 72, gender: '女', gender_val: 0, fvc: 2850.0, speed: 8.9, jump: 190.0, endurance: 288, strength: 38.0, label: '综合型'},
+    {id: 73, gender: '男', gender_val: 1, fvc: 4200.0, speed: 7.7, jump: 240.0, endurance: 248, strength: 13.0, label: '速度型'},
+    {id: 74, gender: '女', gender_val: 0, fvc: 2800.0, speed: 8.8, jump: 187.0, endurance: 289, strength: 36.0, label: '速度型'},
+    {id: 75, gender: '男', gender_val: 1, fvc: 4750.0, speed: 7.1, jump: 264.0, endurance: 224, strength: 17.0, label: '速度型'},
+    {id: 76, gender: '女', gender_val: 0, fvc: 2750.0, speed: 8.7, jump: 188.0, endurance: 291, strength: 37.0, label: '速度型'},
+    {id: 77, gender: '男', gender_val: 1, fvc: 4400.0, speed: 7.6, jump: 249.0, endurance: 238, strength: 15.0, label: '综合型'},
+    {id: 78, gender: '女', gender_val: 0, fvc: 2900.0, speed: 8.9, jump: 192.0, endurance: 283, strength: 40.0, label: '综合型'},
+    {id: 79, gender: '男', gender_val: 1, fvc: 4550.0, speed: 7.3, jump: 255.0, endurance: 233, strength: 16.0, label: '综合型'},
+    {id: 80, gender: '女', gender_val: 0, fvc: 3250.0, speed: 8.3, jump: 210.0, endurance: 268, strength: 45.0, label: '速度型'},
+    {id: 81, gender: '男', gender_val: 1, fvc: 5100.0, speed: 6.8, jump: 278.0, endurance: 210, strength: 21.0, label: '耐力型'},
+    {id: 82, gender: '女', gender_val: 0, fvc: 2950.0, speed: 8.8, jump: 196.0, endurance: 281, strength: 41.0, label: '综合型'},
+    {id: 83, gender: '男', gender_val: 1, fvc: 4050.0, speed: 7.8, jump: 237.0, endurance: 253, strength: 12.0, label: '速度型'},
+    {id: 84, gender: '女', gender_val: 0, fvc: 3050.0, speed: 8.6, jump: 199.0, endurance: 277, strength: 42.0, label: '综合型'},
+    {id: 85, gender: '男', gender_val: 1, fvc: 4250.0, speed: 7.7, jump: 244.0, endurance: 246, strength: 14.0, label: '力量型'},
+    {id: 86, gender: '女', gender_val: 0, fvc: 3100.0, speed: 8.5, jump: 203.0, endurance: 273, strength: 43.0, label: '耐力型'},
+    {id: 87, gender: '男', gender_val: 1, fvc: 4600.0, speed: 7.2, jump: 258.0, endurance: 229, strength: 17.0, label: '综合型'},
+    {id: 88, gender: '女', gender_val: 0, fvc: 2750.0, speed: 9.0, jump: 186.0, endurance: 293, strength: 35.0, label: '速度型'},
+    {id: 89, gender: '男', gender_val: 1, fvc: 4800.0, speed: 7.1, jump: 265.0, endurance: 223, strength: 18.0, label: '速度型'},
+    {id: 90, gender: '女', gender_val: 0, fvc: 2900.0, speed: 8.7, jump: 193.0, endurance: 287, strength: 39.0, label: '综合型'},
+    {id: 91, gender: '男', gender_val: 1, fvc: 4150.0, speed: 7.6, jump: 241.0, endurance: 247, strength: 13.0, label: '速度型'},
+    {id: 92, gender: '女', gender_val: 0, fvc: 3200.0, speed: 8.4, jump: 207.0, endurance: 270, strength: 44.0, label: '耐力型'},
+    {id: 93, gender: '男', gender_val: 1, fvc: 4950.0, speed: 7.0, jump: 272.0, endurance: 218, strength: 19.0, label: '耐力型'},
+    {id: 94, gender: '女', gender_val: 0, fvc: 2850.0, speed: 8.9, jump: 191.0, endurance: 289, strength: 38.0, label: '综合型'},
+    {id: 95, gender: '男', gender_val: 1, fvc: 4350.0, speed: 7.5, jump: 248.0, endurance: 241, strength: 15.0, label: '综合型'},
+    {id: 96, gender: '女', gender_val: 0, fvc: 2800.0, speed: 8.8, jump: 187.0, endurance: 288, strength: 36.0, label: '速度型'},
+    {id: 97, gender: '男', gender_val: 1, fvc: 4650.0, speed: 7.3, jump: 254.0, endurance: 234, strength: 16.0, label: '综合型'},
+    {id: 98, gender: '女', gender_val: 0, fvc: 3300.0, speed: 8.2, jump: 211.0, endurance: 266, strength: 46.0, label: '速度型'},
+    {id: 99, gender: '男', gender_val: 1, fvc: 4400.0, speed: 7.6, jump: 249.0, endurance: 239, strength: 15.0, label: '综合型'},
+    {id: 100, gender: '女', gender_val: 0, fvc: 2750.0, speed: 8.7, jump: 188.0, endurance: 290, strength: 37.0, label: '速度型'},
+    {id: 101, gender: '男', gender_val: 1, fvc: 4600.0, speed: 7.4, jump: 256.0, endurance: 232, strength: 16.0, label: '综合型'},
+    {id: 102, gender: '女', gender_val: 0, fvc: 2850.0, speed: 8.9, jump: 188.0, endurance: 285, strength: 38.0, label: '综合型'},
+    {id: 103, gender: '男', gender_val: 1, fvc: 4900.0, speed: 7.0, jump: 270.0, endurance: 220, strength: 19.0, label: '速度型'},
+    {id: 104, gender: '女', gender_val: 0, fvc: 2950.0, speed: 8.8, jump: 196.0, endurance: 281, strength: 41.0, label: '综合型'},
+    {id: 105, gender: '男', gender_val: 1, fvc: 4250.0, speed: 7.7, jump: 246.0, endurance: 246, strength: 13.0, label: '耐力型'},
+    {id: 106, gender: '女', gender_val: 0, fvc: 3050.0, speed: 8.6, jump: 199.0, endurance: 277, strength: 42.0, label: '综合型'},
+    {id: 107, gender: '男', gender_val: 1, fvc: 4500.0, speed: 7.2, jump: 253.0, endurance: 230, strength: 17.0, label: '综合型'},
+    {id: 108, gender: '女', gender_val: 0, fvc: 2750.0, speed: 9.0, jump: 186.0, endurance: 292, strength: 35.0, label: '耐力型'},
+    {id: 109, gender: '男', gender_val: 1, fvc: 4700.0, speed: 7.3, jump: 260.0, endurance: 227, strength: 18.0, label: '力量型'},
+    {id: 110, gender: '女', gender_val: 0, fvc: 3100.0, speed: 8.5, jump: 202.0, endurance: 274, strength: 43.0, label: '耐力型'},
+    {id: 111, gender: '男', gender_val: 1, fvc: 4300.0, speed: 7.6, jump: 243.0, endurance: 245, strength: 15.0, label: '综合型'},
+    {id: 112, gender: '女', gender_val: 0, fvc: 2950.0, speed: 8.7, jump: 194.0, endurance: 286, strength: 39.0, label: '综合型'},
+    {id: 113, gender: '男', gender_val: 1, fvc: 4950.0, speed: 6.9, jump: 273.0, endurance: 216, strength: 20.0, label: '速度型'},
+    {id: 114, gender: '女', gender_val: 0, fvc: 2850.0, speed: 8.9, jump: 190.0, endurance: 288, strength: 38.0, label: '综合型'},
+    {id: 115, gender: '男', gender_val: 1, fvc: 4350.0, speed: 7.5, jump: 247.0, endurance: 240, strength: 14.0, label: '综合型'},
+    {id: 116, gender: '女', gender_val: 0, fvc: 3200.0, speed: 8.4, jump: 206.0, endurance: 271, strength: 44.0, label: '耐力型'},
+    {id: 117, gender: '男', gender_val: 1, fvc: 4600.0, speed: 7.4, jump: 252.0, endurance: 236, strength: 16.0, label: '综合型'},
+    {id: 118, gender: '女', gender_val: 0, fvc: 2750.0, speed: 8.7, jump: 188.0, endurance: 291, strength: 37.0, label: '速度型'},
+    {id: 119, gender: '男', gender_val: 1, fvc: 4200.0, speed: 7.7, jump: 240.0, endurance: 248, strength: 13.0, label: '速度型'},
+    {id: 120, gender: '女', gender_val: 0, fvc: 2800.0, speed: 8.8, jump: 187.0, endurance: 289, strength: 36.0, label: '速度型'},
+    {id: 121, gender: '男', gender_val: 1, fvc: 4400.0, speed: 7.6, jump: 249.0, endurance: 238, strength: 15.0, label: '综合型'},
+    {id: 122, gender: '女', gender_val: 0, fvc: 2900.0, speed: 8.9, jump: 192.0, endurance: 283, strength: 40.0, label: '综合型'},
+    {id: 123, gender: '男', gender_val: 1, fvc: 4550.0, speed: 7.3, jump: 255.0, endurance: 233, strength: 16.0, label: '综合型'},
+    {id: 124, gender: '女', gender_val: 0, fvc: 3250.0, speed: 8.3, jump: 210.0, endurance: 268, strength: 45.0, label: '速度型'},
+    {id: 125, gender: '男', gender_val: 1, fvc: 5100.0, speed: 6.8, jump: 278.0, endurance: 210, strength: 21.0, label: '耐力型'},
+    {id: 126, gender: '女', gender_val: 0, fvc: 2950.0, speed: 8.8, jump: 196.0, endurance: 281, strength: 41.0, label: '综合型'},
+    {id: 127, gender: '男', gender_val: 1, fvc: 4050.0, speed: 7.8, jump: 237.0, endurance: 253, strength: 12.0, label: '速度型'},
+    {id: 128, gender: '女', gender_val: 0, fvc: 3050.0, speed: 8.6, jump: 199.0, endurance: 277, strength: 42.0, label: '综合型'},
+    {id: 129, gender: '男', gender_val: 1, fvc: 4250.0, speed: 7.7, jump: 244.0, endurance: 246, strength: 14.0, label: '力量型'},
+    {id: 130, gender: '女', gender_val: 0, fvc: 3100.0, speed: 8.5, jump: 203.0, endurance: 273, strength: 43.0, label: '耐力型'},
+    {id: 131, gender: '男', gender_val: 1, fvc: 4600.0, speed: 7.2, jump: 258.0, endurance: 229, strength: 17.0, label: '综合型'},
+    {id: 132, gender: '女', gender_val: 0, fvc: 2750.0, speed: 9.0, jump: 186.0, endurance: 293, strength: 35.0, label: '速度型'},
+    {id: 133, gender: '男', gender_val: 1, fvc: 4800.0, speed: 7.1, jump: 265.0, endurance: 223, strength: 18.0, label: '速度型'},
+    {id: 134, gender: '女', gender_val: 0, fvc: 2900.0, speed: 8.7, jump: 193.0, endurance: 287, strength: 39.0, label: '综合型'},
+    {id: 135, gender: '男', gender_val: 1, fvc: 4150.0, speed: 7.6, jump: 241.0, endurance: 247, strength: 13.0, label: '速度型'},
+    {id: 136, gender: '女', gender_val: 0, fvc: 3200.0, speed: 8.4, jump: 207.0, endurance: 270, strength: 44.0, label: '耐力型'},
+    {id: 137, gender: '男', gender_val: 1, fvc: 4950.0, speed: 7.0, jump: 272.0, endurance: 218, strength: 19.0, label: '耐力型'},
+    {id: 138, gender: '女', gender_val: 0, fvc: 2850.0, speed: 8.9, jump: 191.0, endurance: 289, strength: 38.0, label: '综合型'},
+    {id: 139, gender: '男', gender_val: 1, fvc: 4350.0, speed: 7.5, jump: 248.0, endurance: 241, strength: 15.0, label: '综合型'},
+    {id: 140, gender: '女', gender_val: 0, fvc: 2800.0, speed: 8.8, jump: 187.0, endurance: 288, strength: 36.0, label: '速度型'},
+    {id: 141, gender: '男', gender_val: 1, fvc: 4650.0, speed: 7.3, jump: 254.0, endurance: 234, strength: 16.0, label: '综合型'},
+    {id: 142, gender: '女', gender_val: 0, fvc: 3300.0, speed: 8.2, jump: 211.0, endurance: 266, strength: 46.0, label: '速度型'},
+    {id: 143, gender: '男', gender_val: 1, fvc: 4400.0, speed: 7.6, jump: 249.0, endurance: 239, strength: 15.0, label: '综合型'},
+    {id: 144, gender: '女', gender_val: 0, fvc: 2750.0, speed: 8.7, jump: 188.0, endurance: 290, strength: 37.0, label: '速度型'},
+    {id: 145, gender: '男', gender_val: 1, fvc: 4600.0, speed: 7.4, jump: 256.0, endurance: 232, strength: 16.0, label: '综合型'},
+    {id: 146, gender: '女', gender_val: 0, fvc: 2850.0, speed: 8.9, jump: 188.0, endurance: 285, strength: 38.0, label: '综合型'},
+    {id: 147, gender: '男', gender_val: 1, fvc: 4900.0, speed: 7.0, jump: 270.0, endurance: 220, strength: 19.0, label: '速度型'},
+    {id: 148, gender: '女', gender_val: 0, fvc: 2950.0, speed: 8.8, jump: 196.0, endurance: 281, strength: 41.0, label: '综合型'},
+    {id: 149, gender: '男', gender_val: 1, fvc: 4250.0, speed: 7.7, jump: 246.0, endurance: 246, strength: 13.0, label: '耐力型'},
+    {id: 150, gender: '女', gender_val: 0, fvc: 3050.0, speed: 8.6, jump: 199.0, endurance: 277, strength: 42.0, label: '综合型'},
+    {id: 151, gender: '男', gender_val: 1, fvc: 4500.0, speed: 7.2, jump: 253.0, endurance: 230, strength: 17.0, label: '综合型'},
+    {id: 152, gender: '女', gender_val: 0, fvc: 2750.0, speed: 9.0, jump: 186.0, endurance: 292, strength: 35.0, label: '耐力型'},
+    {id: 153, gender: '男', gender_val: 1, fvc: 4700.0, speed: 7.3, jump: 260.0, endurance: 227, strength: 18.0, label: '力量型'},
+    {id: 154, gender: '女', gender_val: 0, fvc: 3100.0, speed: 8.5, jump: 202.0, endurance: 274, strength: 43.0, label: '耐力型'},
+    {id: 155, gender: '男', gender_val: 1, fvc: 4300.0, speed: 7.6, jump: 243.0, endurance: 245, strength: 15.0, label: '综合型'},
+    {id: 156, gender: '女', gender_val: 0, fvc: 2950.0, speed: 8.7, jump: 194.0, endurance: 286, strength: 39.0, label: '综合型'},
+    {id: 157, gender: '男', gender_val: 1, fvc: 4950.0, speed: 6.9, jump: 273.0, endurance: 216, strength: 20.0, label: '速度型'},
+    {id: 158, gender: '女', gender_val: 0, fvc: 2850.0, speed: 8.9, jump: 190.0, endurance: 288, strength: 38.0, label: '综合型'},
+    {id: 159, gender: '男', gender_val: 1, fvc: 4350.0, speed: 7.5, jump: 247.0, endurance: 240, strength: 14.0, label: '综合型'},
+    {id: 160, gender: '女', gender_val: 0, fvc: 3200.0, speed: 8.4, jump: 206.0, endurance: 271, strength: 44.0, label: '耐力型'}
+];
+
+
+
+// 1. 渲染底部溯源表格 (显示与算法同步)
+const tbody = document.getElementById('table-body'); // 找到网页中表格的tbody容器
+trainingData.forEach(row => { // 遍历160条体测数据（trainingData是存储160条数据的数组）
+    let tr = document.createElement('tr'); // 为每条数据创建一行<tr>
+    // 把数据填充到<td>单元格，最后一列给体测类型加样式（比如不同颜色的标签）
+    tr.innerHTML = `<td>${row.id}</td><td>${row.gender}</td><td>${row.fvc}</td><td>${row.speed}</td><td>${row.jump}</td><td>${row.endurance}</td><td>${row.strength}</td><td><span class="badge type-${row.label}">${row.label}</span></td>`;
+    tbody.appendChild(tr); // 把这一行添加到表格里
+});
+
+// 2. 根据 160 条固定数据动态获取归一化边界值
+let minMax = { // 初始化一个对象，存储每个指标的最小值/最大值
+    fvc: {min: Infinity, max: -Infinity}, // 肺活量
+    speed: {min: Infinity, max: -Infinity}, // 50米跑
+    jump: {min: Infinity, max: -Infinity}, // 立定跳远
+    endurance: {min: Infinity, max: -Infinity}, // 耐力跑
+    strength: {min: Infinity, max: -Infinity} // 力量项目
+};
+// 遍历160条数据，找出每个指标的最小值和最大值
+        trainingData.forEach(d => {
+            if(d.fvc < minMax.fvc.min) minMax.fvc.min = d.fvc; // 更新肺活量最小值
+            if(d.fvc > minMax.fvc.max) minMax.fvc.max = d.fvc;// 更新肺活量最大值
+            if(d.speed < minMax.speed.min) minMax.speed.min = d.speed;
+            if(d.speed > minMax.speed.max) minMax.speed.max = d.speed;
+            if(d.jump < minMax.jump.min) minMax.jump.min = d.jump;
+            if(d.jump > minMax.jump.max) minMax.jump.max = d.jump;
+            if(d.endurance < minMax.endurance.min) minMax.endurance.min = d.endurance;
+            if(d.endurance > minMax.endurance.max) minMax.endurance.max = d.endurance;
+            if(d.strength < minMax.strength.min) minMax.strength.min = d.strength;
+            if(d.strength > minMax.strength.max) minMax.strength.max = d.strength;
+        });
+// 归一化函数：把任意数值转换成0~1之间的数
+        function normalize(val, key) { // 公式：(当前值 - 最小值) / (最大值 - 最小值)
+    // 加 ||1 是防止分母为0（比如所有数据的某个指标都相同）
+            return (val - minMax[key].min) / (minMax[key].max - minMax[key].min || 1);
+        }
+
+        // 3. KNN 基准修正计算
+        function predictKNN() {
+          // 第一步：获取用户在网页输入的体测数据
+            let userGender = parseInt(document.getElementById('gender').value);
+            let userFvc = parseFloat(document.getElementById('fvc').value);
+            let userSpeed = parseFloat(document.getElementById('speed').value);
+            let userJump = parseFloat(document.getElementById('jump').value);
+            let userEndurance = parseFloat(document.getElementById('endurance').value);
+            let userStrength = parseFloat(document.getElementById('strength').value);
+            let k = parseInt(document.getElementById('kValue').value) || 5;
+
+            // 第二步：算法遍历且仅遍历内置的这 160 条训练数据，计算用户数据与160条基准数据的欧几里得距离
+            let distances = trainingData.map(d => {
+                // 通过乘以 4 放大性别权重，由于男女体测标准差异大，使得算法寻找同性相似度的优先级最高
+                let dist = Math.sqrt(  // 重点：性别权重×4（因为男女体测标准差异大，优先匹配同性）
+                    Math.pow((d.gender_val - userGender), 2) * 4 + 
+                // 其他指标先归一化，再算距离
+                    Math.pow(normalize(d.fvc, 'fvc') - normalize(userFvc, 'fvc'), 2) +
+                    Math.pow(normalize(d.speed, 'speed') - normalize(userSpeed, 'speed'), 2) +
+                    Math.pow(normalize(d.jump, 'jump') - normalize(userJump, 'jump'), 2) +
+                    Math.pow(normalize(d.endurance, 'endurance') - normalize(userEndurance, 'endurance'), 2) +
+                    Math.pow(normalize(d.strength, 'strength') - normalize(userStrength, 'strength'), 2)
+                );
+                return { label: d.label, distance: dist };  // 返回：这条数据的体测类型 + 与用户的距离
+            });
+
+            // 第三步：按距离从小到大排序，取欧几里得距离最近的 K 个样本，即取前K个最相似的样本
+            distances.sort((a, b) => a.distance - b.distance);  // 升序排序（距离越小越靠前）
+            let topK = distances.slice(0, k);  // 截取前K个
+
+           // 第四步：投票机制（少数服从多数）
+            let counts = {};  // 存储每个类型的得票数
+            topK.forEach(d => { counts[d.label] = (counts[d.label] || 0) + 1; });   // 比如：耐力型得1票，力量型得2票
+
+            let predictedLabel = Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);  // 找出得票数最多的类型，作为预测结果
+
+
+
+
+            // 前端显示
+            let resBox = document.getElementById('result-box');
+            resBox.style.display = 'block';
+            resBox.innerHTML = `<strong>🏆 KNN 预测完成！</strong><br>
+                            我们在 160 条硬编码记录中寻找了距离您最近的 ${k} 个数据点<br>
+                                （投票分布：${Object.entries(counts).map(e => e[0]+' '+e[1]+'票').join('， ')}）<br>
+                                最终判断您的体测结论为：<span style="color: #dc3545; font-size: 1.5em; font-weight: 800; margin: 0 10px;"><a href="https://doubao.com/bot/rHwbERg6" target="_blank">【${predictedLabel}】</a></span><br>
+点击结论，可与小助手沟通获取更多信息`;
+
+        }
+    </script>
+</body>
+</html>
